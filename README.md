@@ -1,8 +1,11 @@
 # React To Do List v1.00 with Firebase
-
+---------------------------------------
 A To-Do list Project made with React and Tailwind CSS. 
 For backend using Firebase.
 A Development Project to make myself more skillful for my upcoming Chat app project.
+
+### Live Link
+https://to-do-list-v1-firebase-mubin.netlify.app/
 
 ## Getting Started
 
@@ -21,7 +24,7 @@ you automatically get npm installed on your computer. [Download Node.js](https:/
 To download the project follow the instructions bellow
 
 ```
-git clone https://github.com/Md-Mubin/To-Do-List-with-backend-0.5.git
+https://github.com/Md-Mubin/To-Do-List-v1.00-firebase-.git
 cd myreads
 ```
 
@@ -40,7 +43,7 @@ npm run dev
 ```
 than copy the local host link and paste it in browser 
 or
-hold ctrl button and click on the local host link to run it directly in your default browser
+hold ctrl + left click on the local host link to run it directly in your default browser
 
 ## Authors
 Md. Irfan Rahman Mubin

@@ -79,5 +79,5 @@ h1{
 }
 
 .uncompleteTask{
-    @apply bg-[#00000077]  text-[#5c5c5c]
+    @apply p-2 rounded-full text-2xl bg-[#00000077]  text-[#5c5c5c]
 }

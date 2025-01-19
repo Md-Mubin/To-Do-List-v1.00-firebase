@@ -185,7 +185,7 @@ const ToDoList = () => {
 
                     onClick={() => handleCheckTask(items.uniqeID)}
 
-                    className={`p-2 rounded-full text-2xl bg-[#00000077]  text-[#5c5c5c] ${taskCheck.includes(items.uniqeID) && "completeTask" }`}>
+                    className={`uncompleteTask ${taskCheck.includes(items.uniqeID) && "completeTask" }`}>
                     <FaCheck />
                   </button>
                 </ul>

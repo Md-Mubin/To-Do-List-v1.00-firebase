@@ -1,7 +1,7 @@
 // ================== All Imports
-import                       './ToDoList.css'
-import { FiEdit }       from 'react-icons/fi'
-import { FaSave }       from 'react-icons/fa'
+import './ToDoList.css'
+import { FiEdit } from 'react-icons/fi'
+import { FaSave } from 'react-icons/fa'
 import { SparklesCore } from "../ui/sparkles";
 import { FaCheck, FaRegTrashCan } from 'react-icons/fa6'
 import React, { useEffect, useState } from 'react'
@@ -14,18 +14,16 @@ const ToDoList = () => {
   const db = getDatabase() // database
 
   // ------ Common useStates
-  const [todo     , setTodo]      = useState("")
+  const [todo, setTodo] = useState("")
   const [todoError, setTodoError] = useState("") // empty input error
-  const [allTodo  , setAllTodo]   = useState([]) // reading from firebase and store it
+  const [allTodo, setAllTodo] = useState([]) // reading from firebase and store it
 
   // ------ useStates for Edit button
   const [editButton, setEditButton] = useState(false) // edit button trinary operator
   const [editedData, setEditedData] = useState("") // to store edited data
 
   // ------ useStates for check/completed task
-  const [checkStatus, setCheckStatus] = useState({}) // Tracks completion status of tasks
-  const [checkCount , setCheckCount]  = useState(0) // Tracks the number of completed tasks
-
+  const [taskCheck, setTaskCheck] = useState([]) // Tracks and store check tasks
 
   // ================== All Functions
   //----------------------------------
@@ -47,7 +45,7 @@ const ToDoList = () => {
   // ============= Read From Database
   useEffect(() => {
     onValue(ref(db, 'ToDoLists/'), (snapshot) => {
-      const array = [] 
+      const array = []
 
       snapshot.forEach((firebaseDatas) => {
         array.push({ ...firebaseDatas.val(), uniqeID: firebaseDatas.key })
@@ -56,26 +54,20 @@ const ToDoList = () => {
       setAllTodo(array) // sending recived data from database as An Array
     });
 
-    onValue(ref(db, 'checkStatus/'), (snapshot) => {
-      if (snapshot.exists()) {
-        setCheckStatus(snapshot.val());
-      } else {
-        set(ref(db, 'checkStatus/'), {}); // Initialize in Firebase
-      }
-    });
+    onValue(ref(db, "taskCheck/"), (snapshot) => {
+      let checkArray = []
+      snapshot.forEach((items) => {
+        checkArray.push(items.val().taskId)
+      })
+      setTaskCheck(checkArray)
+    })
 
-    onValue(ref(db, 'checkCount/'), (snapshot) => {
-      if (snapshot.exists()) {
-        setCheckCount(snapshot.val());
-      } else {
-        set(ref(db, 'checkCount/'), 0); // Initialize in Firebase
-      }
-    });
   }, [])
 
   // ============= Delete Lists
-  const handleDelete = (deleteDatas) => {
-    remove(ref(db, 'ToDoLists/' + deleteDatas.uniqeID))
+  const handleDelete = (deleteDatasId) => {
+    remove(ref(db, 'ToDoLists/' + deleteDatasId))
+    remove(ref(db, 'taskCheck/' + deleteDatasId))
   }
 
   // ============= Edit Lists
@@ -95,20 +87,14 @@ const ToDoList = () => {
 
   // ============= Complete Task 
   const handleCheckTask = (taskId) => {
-    setCheckStatus((prevStatus) => {
-      const isTaskCompleted = prevStatus[taskId] || false;
-
-      const updatedStatus = { ...prevStatus, [taskId]: !isTaskCompleted };
-      set(ref(db, 'checkStatus/'), updatedStatus); // Sync with Firebase
-
-      const newCheckCount = isTaskCompleted ? checkCount - 1 : checkCount + 1;
-      setCheckCount(newCheckCount);
-      set(ref(db, 'checkCount/'), newCheckCount); // Sync count with Firebase
-
-      return updatedStatus;
-    });
-  };
-
+    if (taskCheck.includes(taskId)) {
+      remove(ref(db, "taskCheck/" + taskId))
+    } else {
+      set(ref(db, "taskCheck/" + taskId), {
+        taskId
+      })
+    }
+  }
 
   // ============= Enter Key
   const handleEnter = (e) => {
@@ -132,7 +118,7 @@ const ToDoList = () => {
         />
 
         <ul className="container">
-          
+
           <h1>To-Do-List</h1>
 
           <li className='headIconArea'><FiEdit className='headIcon' /></li>
@@ -140,7 +126,7 @@ const ToDoList = () => {
           {/* ============= Adding Task Area ============= */}
           <ul className='addTask'>
 
-            <input onKeyDown={(e) => handleEnter(e)} 
+            <input onKeyDown={(e) => handleEnter(e)}
 
               value={todo}
 
@@ -155,7 +141,7 @@ const ToDoList = () => {
             {/* ============== Counters Part ============== */}
             <ul className="counters">
               <li className='counterNumber'>
-                {checkCount} 
+                {taskCheck.length}
                 <span> / </span>
                 {allTodo.length}
               </li>
@@ -172,24 +158,36 @@ const ToDoList = () => {
                   {/* tasks */}
                   <input
 
-                    value={editButton === items.uniqeID ? editedData.todoDatabase : items.todoDatabase} 
+                    value={editButton === items.uniqeID ? editedData.todoDatabase : items.todoDatabase}
 
                     onChange={editButton === items.uniqeID ? (e) => setEditedData({ ...editedData, todoDatabase: e.target.value }) : () => { }}
 
                     type="text" className='taskList' />
 
                   {/* edit button */}
-                  <button onClick={() => editButton === items.uniqeID ? handleUpdate() : handleEditButton(items)} className={`editSaveButton ${checkStatus[items.uniqeID] ? "pointer-events-none opacity-50" : ""}`}>
+                  <button onClick={() => editButton === items.uniqeID ? handleUpdate() : handleEditButton(items)} className={`editSaveButton`}>
                     {
                       editButton === items.uniqeID ? <FaSave /> : <FiEdit />
                     }
                   </button>
 
                   {/* delete button */}
-                  <button onClick={() => handleDelete(items)} className={`todoTasksDeleteButton ${checkStatus[items.uniqeID] ? "pointer-events-none opacity-50 shadow-none" : ""}`}><FaRegTrashCan /></button>
+                  <button
+
+                    onClick={() => handleDelete(items.uniqeID)}
+
+                    className={`todoTasksDeleteButton`}>
+                    <FaRegTrashCan />
+                  </button>
 
                   {/* completed task button */}
-                  <button onClick={() => handleCheckTask(items.uniqeID)} className={`p-2 rounded-full text-2xl ${checkStatus[items.uniqeID] ? "completeTask" : "uncompleteTask"}`}><FaCheck /></button>
+                  <button
+
+                    onClick={() => handleCheckTask(items.uniqeID)}
+
+                    className={`p-2 rounded-full text-2xl bg-[#00000077]  text-[#5c5c5c] ${taskCheck.includes(items.uniqeID) && "completeTask" }`}>
+                    <FaCheck />
+                  </button>
                 </ul>
               ))
             }

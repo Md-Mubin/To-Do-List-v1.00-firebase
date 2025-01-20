@@ -8,7 +8,12 @@ export default {
     extend: {},
     
     container : {
-      center : true
+      center : true,
+      padding : {
+        DEFAULT : "10px",
+        lg: "80px",
+        xl: "0px"
+      }
     },
 
     fontFamily: {

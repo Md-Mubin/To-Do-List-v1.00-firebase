@@ -3,11 +3,11 @@ section{
 }
 
 h1{
-    @apply mb-[30px] font-racing font-normal text-[64px] text-[#fff] leading-normal italic text-center
+    @apply mb-[30px] font-racing font-normal text-5xl lg:text-[64px] text-[#fff] leading-normal italic text-center
 }
 
 .headIconArea{
-    @apply w-[580px] h-[2px] bg-white  flex justify-center m-auto
+    @apply w-full sm:w-[250px] lg:w-[580px] h-[2px] bg-white  flex justify-center m-auto
 }
 
 .headIcon{
